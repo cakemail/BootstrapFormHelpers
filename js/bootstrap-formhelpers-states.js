@@ -83,6 +83,20 @@
       }
 
       this.$element.val(value);
+
+      // Very specific to Cake Mail
+      // Hide state dropdown if country has no states/provinces
+      // Show again if state/province dropdown is not empty, and is set to display: none
+      if (this.$element.html() === '<option value=""></option>') {
+        this.$element.hide();
+        this.$element.prev('.arrow').hide();
+        this.$element.parent().prev('label').hide();
+      } else if (this.$element.css('display') == 'none') {
+        this.$element.show();
+        this.$element.prev('.arrow').show();
+        this.$element.parent().prev('label').show();
+      }
+
     },
 
     changeCountry: function (e) {
