@@ -56,7 +56,8 @@
         }
       }
       
-      this.$element.on('keyup.bfhphone.data-api', BFHPhone.prototype.change);
+      this.$element.on('keyup.bfhphone.data-api focus.bfhphone.data-api', BFHPhone.prototype.change);
+      this.$element.on('blur.bfhphone.data-api', BFHPhone.prototype.leave);
 
       this.loadFormatter();
     },
@@ -64,9 +65,10 @@
     loadFormatter: function () {
       var formattedNumber;
 
-      formattedNumber = formatNumber(this.options.format, this.$element.val());
-
-      this.$element.val(formattedNumber);
+      if (this.$element.val()) {
+        formattedNumber = formatNumber(this.options.format, this.$element.val());
+        this.$element.val(formattedNumber);
+      }
     },
 
     displayFormatter: function () {
@@ -132,6 +134,23 @@
       setCursorPosition($this.$element[0], cursorPosition);
 
       return true;
+    },
+
+    leave: function(e) {
+      var $this; // format, number, country
+
+      $this = $(this).data('bfhphone');
+      var format_prefix_arr, format_prefix, formatted_number;
+      format_prefix_arr = $this.options.format.split("d", 1); // get format before the first "d"
+      format_prefix = format_prefix_arr[0];
+      format_prefix = format_prefix.replace(/\s/g, '');
+      formatted_number = $this.$element.val()
+      formatted_number = formatted_number.replace(/\s/g, '');
+
+      // not technically an invalid number, just "blank", so we blank out field
+      if (formatted_number === format_prefix) {
+        $this.$element.val('');
+      }
     }
 
   };
@@ -145,32 +164,48 @@
     formattedNumber = '';
     number = String(number).replace(/\D/g, '');
 
-    for (indexFormat = 0, indexNumber = 0; indexFormat < format.length; indexFormat = indexFormat + 1) {
+    // Go through the chars in the format string one by one
+    for (indexFormat = 0, indexNumber = 0; indexFormat < format.length; indexFormat++) {
+      // If the char is a digit (usually part of a country code)
       if (/\d/g.test(format.charAt(indexFormat))) {
+        // char matches corresponding char in 'number'
         if (format.charAt(indexFormat) === number.charAt(indexNumber)) {
           formattedNumber += number.charAt(indexNumber);
-          indexNumber = indexNumber + 1;
+          indexNumber++;
+        // char doesn't match, this means we need to add the char from format string
         } else {
           formattedNumber += format.charAt(indexFormat);
         }
+      // if the char is not a digit or the letter 'd'
+      // Cases: 
+      //  - '+' at beginning of string
+      //  - '(' ')' '-' ' ' anywhere in the string
       } else if (format.charAt(indexFormat) !== 'd') {
+        // if we are NOT finished processing the original number
+        // (resulting in charAt returning empty string)
+        // or if we are trying to add a '+' to the formatted number
+        // add the current format character to formatted number
         if (number.charAt(indexNumber) !== '' || format.charAt(indexFormat) === '+') {
           formattedNumber += format.charAt(indexFormat);
         }
+      // char is the letter 'd'
       } else {
         if (number.charAt(indexNumber) === '') {
           formattedNumber += '';
         } else {
           formattedNumber += number.charAt(indexNumber);
-          indexNumber = indexNumber + 1;
+          indexNumber++;
         }
       }
     }
     
-    lastCharacter = format.charAt(formattedNumber.length);
-    if (lastCharacter !== 'd') {
-      formattedNumber += lastCharacter;
-    }
+    // This appears to be unnecessary, since there are no format
+    // strings that don't end in 'd'
+    // Additionally, it causes bugs.
+    // lastCharacter = format.charAt(formattedNumber.length);
+    // if (lastCharacter !== 'd') {
+    //   formattedNumber += lastCharacter;
+    // }
 
     return formattedNumber;
   }
