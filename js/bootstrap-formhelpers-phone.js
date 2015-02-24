@@ -108,6 +108,10 @@
         return true;
       }
 
+      if (!$this.options.format) {
+        return true;
+      }
+
       cursorPosition = getCursorPosition($this.$element[0]);
 
       cursorEnd = false;
@@ -140,6 +144,11 @@
       var $this; // format, number, country
 
       $this = $(this).data('bfhphone');
+
+      if (!$this.options.format) {
+        return;
+      }
+
       var format_prefix_arr, format_prefix, formatted_number;
       format_prefix_arr = $this.options.format.split("d", 1); // get format before the first "d"
       format_prefix = format_prefix_arr[0];
