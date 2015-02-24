@@ -161,6 +161,9 @@
         indexNumber,
         lastCharacter;
 
+    // if we aren't passed a format, abort
+    if (!format) return number;
+
     formattedNumber = '';
     number = String(number).replace(/\D/g, '');
 
