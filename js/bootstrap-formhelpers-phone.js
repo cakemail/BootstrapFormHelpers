@@ -153,8 +153,10 @@
       format_prefix_arr = $this.options.format.split("d", 1); // get format before the first "d"
       format_prefix = format_prefix_arr[0];
       format_prefix = format_prefix.replace(/\s/g, '');
+      format_prefix = format_prefix.replace(/(/g, '');
       formatted_number = $this.$element.val()
       formatted_number = formatted_number.replace(/\s/g, '');
+      formatted_number = formatted_number.replace(/(/g, '');
 
       // not technically an invalid number, just "blank", so we blank out field
       if (formatted_number === format_prefix) {
